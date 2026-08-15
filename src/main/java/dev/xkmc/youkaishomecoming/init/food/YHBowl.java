@@ -145,14 +145,6 @@ public enum YHBowl implements ItemLike {
 	}
 
 	public static void register() {
-		LOGGER.info("YHBowl.register() called - starting bowl food registration");
-		// Trigger enum initialization by accessing values()
-		// This ensures all enum constants are constructed and registered
-		int count = 0;
-		for (YHBowl bowl : values()) {
-			LOGGER.info("Registered bowl food: {} -> {}", bowl.name(), bowl.item.getId());
-			count++;
-		}
-		LOGGER.info("YHBowl registration complete - registered {} bowl foods", count);
+		values();
 	}
 }

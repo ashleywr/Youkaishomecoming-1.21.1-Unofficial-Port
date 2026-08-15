@@ -221,17 +221,6 @@ public abstract class CookingBlockEntity extends TimedRecipeBlockEntity<PotCooki
 		for (var e : recipes) {
 			ans.addAll(e.value().getHints(level, cont));
 		}
-		// DIAG: log hint generation
-		StringBuilder sb = new StringBuilder("[CookingBE.getHints] inv=[");
-		for (int i = 0; i < cont.size(); i++) {
-			var s = cont.getItem(i);
-			if (!s.isEmpty()) sb.append(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(s.getItem())).append(",");
-		}
-		sb.append("] recipes=").append(recipes.size()).append(" hints=").append(ans.size());
-		for (var e : recipes) {
-			sb.append(" recipe=").append(e.id());
-		}
-		dev.xkmc.youkaishomecoming.init.GensokyoLegacy.LOGGER.info(sb.toString());
 		return ans;
 	}
 

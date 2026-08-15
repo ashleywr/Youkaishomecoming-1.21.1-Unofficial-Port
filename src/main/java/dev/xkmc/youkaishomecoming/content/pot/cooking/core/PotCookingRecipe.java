@@ -34,14 +34,7 @@ public abstract class PotCookingRecipe<T extends PotCookingRecipe<T>> extends Ba
 
 	@Override
 	public boolean matches(CookingInv inv, Level level) {
-		boolean containerMatch = matchContainer(inv.container());
-		if (!level.isClientSide()) {
-			dev.xkmc.youkaishomecoming.init.GensokyoLegacy.LOGGER.info("Recipe {} matching: container={}, expected={}, match={}",
-				getResultItem(level.registryAccess()), inv.container(),
-				result.hasCraftingRemainingItem() ? result.getCraftingRemainingItem() : "none",
-				containerMatch);
-		}
-		return containerMatch;
+		return matchContainer(inv.container());
 	}
 
 	public boolean matchContainer(Item item) {

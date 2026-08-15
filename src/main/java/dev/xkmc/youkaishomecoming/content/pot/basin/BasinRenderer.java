@@ -26,8 +26,6 @@ public class BasinRenderer implements BlockEntityRenderer<BasinBlockEntity> {
 		var level = be.getLevel();
 		if (level == null) return;
 		ItemStack stack = be.items.getItem(0);
-		dev.xkmc.youkaishomecoming.init.GensokyoLegacy.LOGGER.info("BasinRenderer.render called - stack: {}, count: {}, fluid: {}",
-			stack.getItem(), stack.getCount(), be.fluids.getFluidInTank(0));
 		int i = (int) be.getBlockPos().asLong();
 		int n = Math.min(8, stack.getCount());
 		var rand = new Random(new Random(i).nextLong());

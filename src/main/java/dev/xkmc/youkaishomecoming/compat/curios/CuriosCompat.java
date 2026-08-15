@@ -14,10 +14,13 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.util.TriState;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosCapability;
 import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.event.CurioCanEquipEvent;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 
 public class CuriosCompat {
@@ -31,6 +34,31 @@ public class CuriosCompat {
      */
     private static boolean enabled() {
         return GLModConfig.SERVER.curiosSupportEnabled.get();
+    }
+
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.item.Item> CURIOS_HEAD =
+            net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM,
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("curios", "head"));
+    private static final net.minecraft.tags.TagKey<net.minecraft.world.item.Item> CURIOS_BACK =
+            net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM,
+                    net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("curios", "back"));
+
+    /**
+     * Force-allow this mod's accessories into their tagged Curios slots even when a
+     * third-party mod (e.g. GoetyDelight) attaches a narrow validator to the head slot
+     * that would otherwise reject them.
+     */
+    @SubscribeEvent
+    public static void onCurioCanEquip(CurioCanEquipEvent event) {
+        if (!enabled()) return;
+        if (event.getEquipResult() == TriState.TRUE) return;
+        String id = event.getSlotContext().identifier();
+        ItemStack stack = event.getStack();
+        if ("head".equals(id) && stack.is(CURIOS_HEAD)) {
+            event.setEquipResult(TriState.TRUE);
+        } else if ("back".equals(id) && stack.is(CURIOS_BACK)) {
+            event.setEquipResult(TriState.TRUE);
+        }
     }
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -86,7 +114,7 @@ public class CuriosCompat {
                 .orElse(false);
     }
 
-    public static boolean hasWings(LivingEntity le, Item item, boolean checkRender) {
+    public static boolean hasCurio(LivingEntity le, Item item, boolean checkRender) {
         if (!enabled()) return false;
         return CuriosApi.getCuriosInventory(le)
                 .flatMap(h -> h.findFirstCurio(item))

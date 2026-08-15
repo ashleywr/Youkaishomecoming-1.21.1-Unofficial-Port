@@ -95,8 +95,6 @@ public class BasinBlockEntity extends BaseBlockEntity implements
 	}
 
 	public void notifyTile() {
-		dev.xkmc.youkaishomecoming.init.GensokyoLegacy.LOGGER.info("BasinBlockEntity.notifyTile called - items: {}, fluid: {}",
-			items.getItem(0), fluids.getFluidInTank(0));
 		setChanged();
 		sync();
 	}

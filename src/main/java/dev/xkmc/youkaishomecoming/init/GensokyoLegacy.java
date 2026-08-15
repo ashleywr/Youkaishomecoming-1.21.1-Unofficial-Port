@@ -167,6 +167,7 @@ public class GensokyoLegacy {
             dev.xkmc.youkaishomecoming.content.pot.kettle.KettleBlockEntity::getItemHandlerCap);
         if (ModList.get().isLoaded("curios")) {
             dev.xkmc.youkaishomecoming.compat.curios.CuriosCompat.registerCapabilities(event);
+            NeoForge.EVENT_BUS.register(dev.xkmc.youkaishomecoming.compat.curios.CuriosCompat.class);
         }
     }
 
@@ -199,6 +200,7 @@ public class GensokyoLegacy {
             DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_WARM.get());
             DispenserBlock.registerProjectileBehavior(GLItems.FROZEN_FROG_TEMPERATE.get());
             DispenserBlock.registerProjectileBehavior(GLItems.FAIRY_ICE_CRYSTAL.get());
+            dev.xkmc.youkaishomecoming.content.block.combined.CombinedBlockSet.init();
             dev.xkmc.youkaishomecoming.content.pot.table.item.TableItemManager.init();
             dev.xkmc.youkaishomecoming.content.pot.table.item.TableItemManager.prepareData();
             if (net.neoforged.fml.ModList.get().isLoaded("terrablender")) {

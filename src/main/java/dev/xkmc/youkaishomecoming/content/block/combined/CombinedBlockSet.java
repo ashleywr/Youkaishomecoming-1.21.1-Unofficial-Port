@@ -81,26 +81,52 @@ public class CombinedBlockSet {
 	}
 
 	public static boolean onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-		var state = getStateToReplace(event);
-		if (state == null) return false;
+		if (dev.xkmc.youkaishomecoming.init.data.GLModConfig.SERVER.disableComposeMechanic.get()) return false;
+		var result = computeResult(event);
+		if (result == null) return false;
 		var player = event.getEntity();
-		event.getLevel().setBlock(event.getPos(), state, 18);
+		event.getLevel().setBlock(event.getPos(), result.state, 18);
 		if (!player.getAbilities().instabuild) {
 			event.getItemStack().shrink(1);
+		}
+		if (result.giveback != null) {
+			var giveStack = new net.minecraft.world.item.ItemStack(result.giveback);
+			if (!player.getInventory().add(giveStack)) {
+				player.drop(giveStack, false);
+			}
 		}
 		event.setCanceled(true);
 		event.setCancellationResult(InteractionResult.CONSUME);
 		return true;
 	}
 
+	private record ReplaceResult(BlockState state, @Nullable net.minecraft.world.level.ItemLike giveback) {}
+
 	@Nullable
-	private static BlockState getStateToReplace(PlayerInteractEvent.RightClickBlock event) {
+	private static ReplaceResult computeResult(PlayerInteractEvent.RightClickBlock event) {
 		var state = event.getLevel().getBlockState(event.getPos());
 		var stack = event.getItemStack();
 		if (!(stack.getItem() instanceof BlockItem bi)) return null;
 		var a = CombinedBlockSet.fetch(state.getBlock());
 		var b = CombinedBlockSet.fetch(bi.getBlock());
 		if (a == null || b == null) return null;
+		if (a != b && state.is(a.stairs()) && b.stairs().value() == bi.getBlock()) {
+			var set = CombinedBlockSet.get(a, b);
+			if (set == null) return null;
+			var block = set.a == a ? set.stairA : set.stairB;
+			var newState = block.get().defaultBlockState()
+					.setValue(CombinedStairsBlock.FACING, state.getValue(StairBlock.FACING))
+					.setValue(CombinedStairsBlock.HALF, state.getValue(StairBlock.HALF))
+					.setValue(CombinedStairsBlock.SHAPE, state.getValue(StairBlock.SHAPE));
+			return new ReplaceResult(newState, b.vertical().value());
+		}
+		var newState = getStateToReplace(event, state, bi, a, b);
+		return newState == null ? null : new ReplaceResult(newState, null);
+	}
+
+	@Nullable
+	private static BlockState getStateToReplace(PlayerInteractEvent.RightClickBlock event,
+			BlockState state, BlockItem bi, IBlockSet a, IBlockSet b) {
 		var inside = AABB.encapsulatingFullBlocks(event.getPos(), event.getPos())
 				.deflate(0.01).contains(event.getHitVec().getLocation());
 		if (!inside) return null;

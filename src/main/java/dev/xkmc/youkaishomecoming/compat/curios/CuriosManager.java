@@ -12,7 +12,7 @@ public class CuriosManager {
 		if (le.getItemBySlot(EquipmentSlot.CHEST).is(item))
 			return true;
 		if (ModList.get().isLoaded("curios")) {
-			return CuriosCompat.hasWings(le, item, checkRender);
+			return CuriosCompat.hasCurio(le, item, checkRender);
 		}
 		return false;
 	}
@@ -21,7 +21,7 @@ public class CuriosManager {
 		if (le.getItemBySlot(EquipmentSlot.HEAD).is(item))
 			return true;
 		if (ModList.get().isLoaded("curios")) {
-			return CuriosCompat.hasWings(le, item, checkRender);
+			return CuriosCompat.hasCurio(le, item, checkRender);
 		}
 		return false;
 	}

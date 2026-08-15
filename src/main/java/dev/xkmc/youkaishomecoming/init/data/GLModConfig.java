@@ -22,6 +22,7 @@ public class GLModConfig {
         public final ModConfigSpec.IntValue koishiHatCooldown;
 
         public final ModConfigSpec.BooleanValue curiosSupportEnabled;
+        public final ModConfigSpec.BooleanValue disableComposeMechanic;
 
         public final ModConfigSpec.BooleanValue spawnDeer;
         public final ModConfigSpec.BooleanValue spawnBoar;
@@ -102,6 +103,8 @@ public class GLModConfig {
 
             builder.push("blocks", "Blocks");
             {
+                disableComposeMechanic = builder.text("Disable the right-click compose mechanic for composite blocks. When true, right-clicking a slab/stairs with another slab/stairs will not combine them.")
+                        .define("disableComposeMechanic", true);
             }
             builder.pop();
 
@@ -239,6 +242,8 @@ public class GLModConfig {
         public final ModConfigSpec.IntValue powerInfoYAnchor;
         public final ModConfigSpec.IntValue powerInfoYOffset;
 
+        public final ModConfigSpec.BooleanValue disableCompositeBlocks;
+
         Client(Builder builder) {
             markL2();
             builder.push("power_info", "Power Info Overlay");
@@ -251,6 +256,13 @@ public class GLModConfig {
                         .defineInRange("powerInfoYAnchor", 0, -1, 1);
                 powerInfoYOffset = builder.text("Vertical pixel offset for the power info overlay")
                         .defineInRange("powerInfoYOffset", 0, -1000, 1000);
+            }
+            builder.pop();
+
+            builder.push("blocks", "Blocks");
+            {
+                disableCompositeBlocks = builder.text("Hide the composite blocks creative tab and its entries from the creative inventory and JEI. Placed blocks and right-click assembly still work. Requires a game restart to take effect.")
+                        .define("disableCompositeBlocks", false);
             }
             builder.pop();
         }

@@ -76,13 +76,7 @@ public enum YHPotFood implements ItemLike {
 	}
 
 	public static void register() {
-		LOGGER.info("YHPotFood.register() called - starting pot food registration");
-		int count = 0;
-		for (YHPotFood food : values()) {
-			LOGGER.info("Registered pot food: {} -> {}", food.name(), food.block.getId());
-			count++;
-		}
-		LOGGER.info("YHPotFood registration complete - registered {} pot foods", count);
+		values();
 	}
 
 }
