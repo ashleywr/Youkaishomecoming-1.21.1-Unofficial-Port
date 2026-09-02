@@ -20,6 +20,9 @@ import dev.xkmc.l2serial.serialization.marker.SerialField;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -55,6 +58,11 @@ import java.util.Optional;
 
 @SerialClass
 public abstract class YoukaiEntity extends DamageClampEntity implements SpellCircleHolder, IYoukaiEntity {
+
+	private static final String LEGACY_SPELL_PACKAGE =
+			"dev.xkmc.youkaishomecoming.content.spell.game.";
+	private static final String CURRENT_SPELL_PACKAGE =
+			"dev.xkmc.youkaishomecoming.content.spell.card.";
 
 	private static <T> EntityDataAccessor<T> defineId(EntityDataSerializer<T> ser) {
 		return SynchedEntityData.defineId(YoukaiEntity.class, ser);
@@ -166,7 +174,9 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		tickCount = tag.getInt("Age");
 		var cdc = new TagCodec(level().registryAccess());
 		if (tag.contains("auto-serial")) {
-			Wrappers.run(() -> cdc.fromTag(tag.getCompound("auto-serial"), getClass(), this));
+			var autoSerial = tag.getCompound("auto-serial");
+			migrateLegacySpellClassNames(autoSerial);
+			Wrappers.run(() -> cdc.fromTag(autoSerial, getClass(), this));
 		}
 		var data = tag.get("Restrict");
 		if (data != null) {
@@ -186,6 +196,40 @@ public abstract class YoukaiEntity extends DamageClampEntity implements SpellCir
 		}
 		if (getTarget() == null) {
 			navCtrl.setWalking();
+		}
+	}
+
+	/**
+	 * The 1.21 port moved spell cards from {@code content.spell.game} to
+	 * {@code content.spell.card}. Structure templates and already-saved Youkai
+	 * serialize the concrete spell class name, so rewrite the old package before
+	 * L2Serial resolves it.
+	 */
+	private static void migrateLegacySpellClassNames(Tag tag) {
+		if (tag instanceof CompoundTag compound) {
+			for (String key : compound.getAllKeys()) {
+				Tag value = compound.get(key);
+				if (value instanceof StringTag stringTag) {
+					String className = stringTag.getAsString();
+					if (className.startsWith(LEGACY_SPELL_PACKAGE)) {
+						compound.putString(key, CURRENT_SPELL_PACKAGE + className.substring(LEGACY_SPELL_PACKAGE.length()));
+					}
+				} else if (value != null) {
+					migrateLegacySpellClassNames(value);
+				}
+			}
+		} else if (tag instanceof ListTag list) {
+			for (int index = 0; index < list.size(); index++) {
+				Tag value = list.get(index);
+				if (value instanceof StringTag stringTag) {
+					String className = stringTag.getAsString();
+					if (className.startsWith(LEGACY_SPELL_PACKAGE)) {
+						list.set(index, StringTag.valueOf(CURRENT_SPELL_PACKAGE + className.substring(LEGACY_SPELL_PACKAGE.length())));
+					}
+				} else {
+					migrateLegacySpellClassNames(value);
+				}
+			}
 		}
 	}
 
